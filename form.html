@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+	</head>
+	<body>
+		<form name="ruleName">
+			<div prop="username">
+        <div class="asdasdasd tip-anchor"></div>
+				<label for="">用户名：</label>
+				<input type="text" />
+      </div>
+      <div prop="pass">
+				<label for="">密码：</label>
+				<input type="text" />
+			</div>
+		</form>
+		<script>
+			window.onload = function () {
+				const formELem = document.querySelector('form');
+				let rules = {
+					username: [
+						{ required: true, message: '用户名不能为空', trigger: ['blur', 'change'] },
+						{ min: 10, message: '最小值为10', trigger: ['blur', 'change'] }
+					]
+				};
+				formELem.setAttribute('rules', JSON.stringify(rules));
+			};
+		</script>
+		<script src="/js-valid.js"></script>
+	</body>
+</html>
