@@ -80,6 +80,10 @@ function addMoreEvents(tragetDom, prop, events, callback) {
 	});
 }
 
+/**
+ * 根据表单的 name 属性值，对表单进行全部字段验证
+ * @param {String} formName form 的 name 属性值
+ */
 function validateAll(formName) {
 	return new Promise((resolve, reject) => {
 		const formElem = document.querySelector(`form[name=${formName}]`); // 获取要进行验证的表单
@@ -101,6 +105,30 @@ function validateAll(formName) {
 		setTimeout(() => {
 			const arr_Tip = formElem.querySelectorAll('.valid-tip');
 			resolve(arr_Tip.length <= 0);
+		}, 50);
+	});
+}
+
+/**
+ * 验证具体的表单字段
+ * @param {String} formName form 的 name 属性值
+ * @param {String} propVal prop 的属性值
+ */
+function validateProp(formName, propVal) {
+	return new Promise((resolve, reject) => {
+		const formElem = document.querySelector(`form[name=${formName}]`); // 获取要进行验证的表单
+    const obj_Rules = JSON.parse(formElem.getAttribute('rules')); // 获取当前 form 的 rules
+    const propElem = formElem.querySelector(`*[prop=${propVal}]`); // 获取 propVal 对应的元素
+		const propControl = propElem.querySelector('input, select, areatext'); // 获取 prop 元素中的表单元素，即需要验证的元素
+
+		// 根据 prop 属性值从 rules 中提取对应的验证规则数组，然后根据数组中的验证规则逐条对需要验证的元素进行验证
+		obj_Rules[propVal].forEach((rule) => {
+			const validate = new Validate(propControl, rule, propVal, formName);
+			validate.validate();
+    });
+    setTimeout(() => {
+      const tipElem = propElem.querySelector('.valid-tip');
+			resolve(tipElem == null);
 		}, 50);
 	});
 }
