@@ -24,7 +24,7 @@
 function initValid() {
 	let formElem = document.querySelectorAll('form');
 	formElem.forEach(function (form) {
-		const rules = JSON.parse(form.getAttribute('rules')); // 获取当前 form 的 rules
+		const rules = form.rules; // 获取当前 form 的 rules
 		const props = Object.keys(rules); // 从 rules 中提取 prop
 		let formName = form.name; // 表单的 name
 
@@ -88,7 +88,7 @@ function validateAll(formName) {
 	return new Promise((resolve, reject) => {
 		const formElem = document.querySelector(`form[name=${formName}]`); // 获取要进行验证的表单
 		const arr_propsElem = formElem.querySelectorAll(`*[prop]`); // 获取当前表单中全部的 prop 元素
-		const obj_Rules = JSON.parse(formElem.getAttribute('rules')); // 获取当前 form 的 rules
+		const obj_Rules = formElem.rules; // 获取当前 form 的 rules
 
 		// 对 arr_propsElem 进行遍历，逐一验证
 		arr_propsElem.forEach(function (propElem) {
@@ -117,17 +117,17 @@ function validateAll(formName) {
 function validateProp(formName, propVal) {
 	return new Promise((resolve, reject) => {
 		const formElem = document.querySelector(`form[name=${formName}]`); // 获取要进行验证的表单
-    const obj_Rules = JSON.parse(formElem.getAttribute('rules')); // 获取当前 form 的 rules
-    const propElem = formElem.querySelector(`*[prop=${propVal}]`); // 获取 propVal 对应的元素
+		const obj_Rules = formElem.rules; // 获取当前 form 的 rules
+		const propElem = formElem.querySelector(`*[prop=${propVal}]`); // 获取 propVal 对应的元素
 		const propControl = propElem.querySelector('input, select, areatext'); // 获取 prop 元素中的表单元素，即需要验证的元素
 
 		// 根据 prop 属性值从 rules 中提取对应的验证规则数组，然后根据数组中的验证规则逐条对需要验证的元素进行验证
 		obj_Rules[propVal].forEach((rule) => {
 			const validate = new Validate(propControl, rule, propVal, formName);
 			validate.validate();
-    });
-    setTimeout(() => {
-      const tipElem = propElem.querySelector('.valid-tip');
+		});
+		setTimeout(() => {
+			const tipElem = propElem.querySelector('.valid-tip');
 			resolve(tipElem == null);
 		}, 50);
 	});
@@ -162,6 +162,9 @@ Validate.prototype = {
 				case 'message':
 				case 'trigger':
 					// message、trigger 不需要进行处理，直接忽略
+					break;
+				case 'validator':
+					this.customValidate();
 					break;
 				case 'required': {
 					this.required();
@@ -283,6 +286,11 @@ Validate.prototype = {
 		}
 
 		return ret;
+	},
+
+	customValidate: function () {
+		let val = this.tragetDom.value.trim();
+		console.log(this.rule);
 	},
 
 	// 必填
