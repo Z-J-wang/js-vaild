@@ -85,6 +85,7 @@ function addMoreEvents(tragetDom, prop, events, callback) {
  * @param {*} prop 验证的 prop
  */
 function validate(tragetDom, rule, prop) {
+	const validate = new Validate(tragetDom, rule, prop);
 	// 提取 rule 对象中的全部属性逐一遍历
 	Object.keys(rule).forEach((key) => {
 		// 借助 switch 语句对不同的 key 进行不同的处理
@@ -94,11 +95,15 @@ function validate(tragetDom, rule, prop) {
 				// message、trigger 不需要进行处理，直接忽略
 				break;
 			case 'required': {
-				required(tragetDom, rule, prop);
+				validate.required();
 				break;
 			}
 			case 'min': {
-				min(tragetDom, rule, prop);
+				validate.min();
+				break;
+			}
+			case 'max': {
+				validate.max();
 				break;
 			}
 			default:
@@ -110,133 +115,157 @@ function validate(tragetDom, rule, prop) {
 }
 
 /**
- * 必填
+ * 表单验证规则对象创建
  * @param {*} tragetDom 验证元素
  * @param {*} rule 用户设置的验证规则
  * @param {*} prop prop 属性名
  */
-function required(tragetDom, rule, prop) {
-	let val = tragetDom.value.trim();
-
-	// 验证是否已存在提示语
-	let ret = hasValidTip(prop, 'required');
-	if (!ret) {
-		return false;
-	}
-
-	dealWithTip(prop, val != '' , rule.message, 'required');
+function Validate(tragetDom, rule, prop) {
+	this.tragetDom = tragetDom;
+	this.rule = rule;
+	this.prop = prop;
 }
 
-/**
- * 最小值
- * @param {*} tragetDom 验证元素
- * @param {*} rule 用户设置的验证规则
- * @param {*} prop prop 属性名
- */
-function min(tragetDom, rule, prop) {
-	let val = tragetDom.value;
+Validate.prototype = {
+	constructor: Validate,
 
-	// 验证是否已存在提示语
-	let ret = hasValidTip(prop, 'min');
-	if (!ret) {
-		return false;
-	}
+	// 必填
+	required: function () {
+		let val = this.tragetDom.value.trim();
 
-	dealWithTip(prop, val > rule.min, rule.message, 'required');
-}
-
-/**
- * 用于判断是否已存在提示语。如果已存在提示语，则只允许对已存在的提示语的对应校验规则进行校验。
- * 这样是为了防止，其他验证规则覆盖的其他验证规则的提示语
- * @param {String} prop prop 属性名，用于获取 prop 元素
- * @param {String} ruleName 当前验证规则的名字
- * @returns {Boolean} 是否允许进一步的表单验证
- */
-function hasValidTip(prop, ruleName) {
-	let ret = false; // return 结果
-	let validTipElem = document.querySelector(`*[prop=${prop}] .valid-tip`); // 获取 prop 元素内部已存在的提示语元素
-
-	if (validTipElem) {
-		// 已存在提示语，则判断是否在当前验证规则的提示语
-		let attr_rule = validTipElem.getAttribute('rule');
-		if (attr_rule != ruleName) {
-			// 不是当前验证规则的提示语，停止验证
-			ret = false;
-		} else {
-			// 是当前验证的提示语，进入具体的验证
-			ret = true;
+		// 验证是否已存在提示语
+		let ret = this.hasValidTip('required');
+		if (!ret) {
+			return false;
 		}
-	} else {
-		// 不存在，直接放回 true 进行进一步的验证
-		ret = true;
-	}
 
-	return ret;
-}
+		this.dealWithTip(val != '', this.rule.message, 'required');
+	},
 
-/**
- * 提示语处理
- * @param {*} prop prop 属性名
- * @param {*} ret 验证结果
- * @param {*} msg 提示语文本
- * @param {*} ruleName 当前验证规则名
- */
-function dealWithTip(prop, ret, msg, ruleName) {
-	if (!ret) {
-		// 验证失败
-		console.warn(`${prop}：${msg}`);
-		addTipLabel(prop, msg, ruleName);
-	} else {
-		// 验证成功
-		removeTipLabel(prop, ruleName);
-	}
-}
+	// 最小值
+	min: function () {
+		let val = this.tragetDom.value;
 
-/**
- * 以携带 prop 属性的元素为参照点，将错误提示作为其最后的子元素添加到页面上
- * @param {String} prop prop 属性名
- * @param {String} msg 提示语
- * @param {String} ruleName 当前验证规则的名字
- */
-function addTipLabel(prop, msg, ruleName) {
-	let validTipElem = document.querySelector(`*[prop=${prop}] .valid-tip`); // 获取 prop 元素内部已存在的提示语元素
-	let tipAnchor = document.querySelector(`*[prop=${prop}] .tip-anchor`);
-	let tipELem = document.createElement('lable');
+		// 验证是否已存在提示语
+		let ret = this.hasValidTip('min');
+		if (!ret) {
+			return false;
+		}
 
-	// 如果已存在提示语，则移除
-	if (validTipElem) {
-		validTipElem.remove();
-	}
+		this.dealWithTip(val >= this.rule.min, this.rule.message, 'min');
+	},
 
-	// 提示语元素初始化
-	tipELem.style.display = 'block';
-	tipELem.style.color = 'red';
-	tipELem.classList.add('valid-tip');
-	tipELem.setAttribute('rule', ruleName); // rule 属性用于唯一性判断
-	tipELem.innerHTML = msg;
+	// 最大值
+	max: function () {
+		let val = this.tragetDom.value;
 
-	// 判断 prop 是否存在提示语锚点
-	if (tipAnchor) {
-		// 存在，则将提示语元素插入到锚点中
-		tipAnchor.append(tipELem);
-	} else {
-		// 不存在，则将提示语元素插入到 prop 元素中
-		document.querySelector(`*[prop=${prop}]`).append(tipELem);
-	}
-}
+		// 验证是否已存在提示语
+		let ret = this.hasValidTip('max');
+		if (!ret) {
+			return false;
+		}
 
-/**
- * 以携带 prop 属性的元素为参照点，移除提示语元素
- * @param {*} prop prop 属性名
- * @param {*} ruleName 当前验证规则的名字
- */
-function removeTipLabel(prop, ruleName) {
-	let validTipElem = document.querySelector(`*[prop=${prop}] .valid-tip`); // 获取 prop 元素内部已存在的提示语元素
-	if (validTipElem) {
-		let attr_rule = validTipElem.getAttribute('rule');
-		if (attr_rule == ruleName) {
-      // 如果，已存在的提示语元素的 rule 属性值和当前验证规则的名字一致，则删除提示语元素
+		this.dealWithTip(this.prop, val <= this.rule.max, this.rule.message, 'max');
+	},
+
+	/**
+	 * 提示语处理
+	 * @param {*} ret 验证结果
+	 * @param {*} msg 提示语文本
+	 * @param {*} ruleName 当前验证规则名
+	 */
+	dealWithTip: function (ret, msg, ruleName) {
+		if (!ret) {
+			// 验证失败
+			console.warn(`${this.prop}：${msg}`);
+			this.addTipLabel(msg, ruleName);
+		} else {
+			// 验证成功
+			this.removeTipLabel(ruleName);
+		}
+	},
+
+	/**
+	 * 以携带 prop 属性的元素为参照点，将错误提示作为其最后的子元素添加到页面上
+	 * @param {String} msg 提示语
+	 * @param {String} ruleName 当前验证规则的名字
+	 */
+	addTipLabel: function (msg, ruleName) {
+		// 获取 prop 元素内部已存在的提示语元素
+		let validTipElem = document.querySelector(
+			`*[prop=${this.prop}] .valid-tip`
+		);
+		let tipAnchor = document.querySelector(`*[prop=${this.prop}] .tip-anchor`);
+		let tipELem = document.createElement('lable');
+
+		// 如果已存在提示语，则移除
+		if (validTipElem) {
 			validTipElem.remove();
 		}
+
+		// 提示语元素初始化
+		tipELem.style.display = 'block';
+		tipELem.style.color = 'red';
+		tipELem.classList.add('valid-tip');
+		tipELem.setAttribute('rule', ruleName); // rule 属性用于唯一性判断
+		tipELem.innerHTML = msg;
+
+		// 判断 prop 是否存在提示语锚点
+		if (tipAnchor) {
+			// 存在，则将提示语元素插入到锚点中
+			tipAnchor.append(tipELem);
+		} else {
+			// 不存在，则将提示语元素插入到 prop 元素中
+			document.querySelector(`*[prop=${this.prop}]`).append(tipELem);
+		}
+	},
+
+	/**
+	 * 以携带 prop 属性的元素为参照点，移除提示语元素
+	 * @param {*} ruleName 当前验证规则的名字
+	 */
+	removeTipLabel: function (ruleName) {
+		// 获取 prop 元素内部已存在的提示语元素
+		let validTipElem = document.querySelector(
+			`*[prop=${this.prop}] .valid-tip`
+		);
+
+		if (validTipElem) {
+			let attr_rule = validTipElem.getAttribute('rule');
+			if (attr_rule == ruleName) {
+				// 如果，已存在的提示语元素的 rule 属性值和当前验证规则的名字一致，则删除提示语元素
+				validTipElem.remove();
+			}
+		}
+	},
+
+	/**
+	 * 用于判断是否已存在提示语。如果已存在提示语，则只允许对已存在的提示语的对应校验规则进行校验。
+	 * 这样是为了防止，其他验证规则覆盖的其他验证规则的提示语
+	 * @param {String} ruleName 当前验证规则的名字
+	 * @returns {Boolean} 是否允许进一步的表单验证
+	 */
+	hasValidTip: function (ruleName) {
+		let ret = false; // return 结果
+		let validTipElem = document.querySelector(
+			`*[prop=${this.prop}] .valid-tip`
+		); // 获取 prop 元素内部已存在的提示语元素
+
+		if (validTipElem) {
+			// 已存在提示语，则判断是否在当前验证规则的提示语
+			let attr_rule = validTipElem.getAttribute('rule');
+			if (attr_rule != ruleName) {
+				// 不是当前验证规则的提示语，停止验证
+				ret = false;
+			} else {
+				// 是当前验证的提示语，进入具体的验证
+				ret = true;
+			}
+		} else {
+			// 不存在，直接放回 true 进行进一步的验证
+			ret = true;
+		}
+
+		return ret;
 	}
-}
+};
