@@ -26,7 +26,7 @@
 						{ min: 10, message: '最小值为10', trigger: ['blur', 'change'] }
 					]
 				};
-				formELem.setAttribute('rules', JSON.stringify(rules));
+        formELem.rules = rules;
 			};
 		</script>
 		<script src="/js-valid.js"></script>
