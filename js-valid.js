@@ -187,15 +187,23 @@ Validate.prototype = {
 	},
 	/**
 	 * 提示语处理
+	 * @param {*} value 用户输入值
 	 * @param {*} ret 验证结果
-	 * @param {*} msg 提示语文本
+	 * @param {String|Function|HTML String} msg 提示语
 	 * @param {*} ruleName 当前验证规则名
 	 */
-	dealWithTip: function (ret, msg, ruleName) {
+	dealWithTip: function (value, ret, msg, ruleName) {
 		if (!ret) {
 			// 验证失败
+			let message = msg;
+
+			// 判断 msg 是否是 function, 如果是，则 提示文本为 function 的返回值
+			// msg 接收一个参数，即用户输入值
+			if (typeof msg == 'function') {
+				message = msg(value);
+			}
+			this.addTipLabel(message, ruleName);
 			console.warn(`${this.prop}：${msg}`);
-			this.addTipLabel(msg, ruleName);
 		} else {
 			// 验证成功
 			this.removeTipLabel(ruleName);
@@ -311,7 +319,7 @@ Validate.prototype = {
 				return false;
 			}
 
-			this.dealWithTip(isTrue, msg, 'custom-validate');
+			this.dealWithTip(val, isTrue, msg, 'custom-validate');
 		});
 	},
 
@@ -325,7 +333,7 @@ Validate.prototype = {
 			return false;
 		}
 
-		this.dealWithTip(val != '', this.rule.message, 'required');
+		this.dealWithTip(val, val != '', this.rule.message, 'required');
 	},
 
 	// 最小值
@@ -337,8 +345,8 @@ Validate.prototype = {
 		if (!ret) {
 			return false;
 		}
-
-		this.dealWithTip(val >= this.rule.min, this.rule.message, 'min');
+		console.log(typeof this.rule.message);
+		this.dealWithTip(val, val >= this.rule.min, this.rule.message, 'min');
 	},
 
 	// 最大值
@@ -351,6 +359,6 @@ Validate.prototype = {
 			return false;
 		}
 
-		this.dealWithTip(val <= this.rule.max, this.rule.message, 'max');
+		this.dealWithTip(val, val <= this.rule.max, this.rule.message, 'max');
 	}
 };
