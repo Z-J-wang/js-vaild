@@ -134,6 +134,28 @@ function validateProp(formName, propVal) {
 }
 
 /**
+ * 表单整体重置
+ * @param {String} formName 表单名
+ */
+function resetForm(formName) {
+
+  // 获取表单中的 prop 元素
+	let arr_propElems = document.querySelectorAll(
+		`form[name=${formName}] *[prop]`
+  );
+  
+  // 遍历 prop 元素，逐一进行重置操作
+	arr_propElems.forEach(function (propElem) {
+		let propControl = propElem.querySelector('input, select, areatext');
+    let tipElem = propElem.querySelector('.valid-tip');
+    if(tipElem){
+      tipElem.remove(); // 删除提示语元素
+    }
+    propControl.value = ''; // 重置 value
+	});
+}
+
+/**
  * 表单验证对象创建(用于具体表单控件的验证)
  * 这里采用了构造函数模式和原型模式来创建对象
  * @param {DOM} tragetDom 要验证的元素
