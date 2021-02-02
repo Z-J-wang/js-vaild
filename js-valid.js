@@ -45,8 +45,8 @@ function initValid() {
 			propRules.forEach((rule) => {
 				// propControl 添加事件监听器
 				addMoreEvents(propControl, prop, rule.trigger, function (e) {
-					const validate = new Validate(propControl, rule, prop, formName);
-					validate.validate();
+					const validator = new Validator(propControl, rule, prop, formName);
+					validator.validate();
 				});
 			});
 		});
@@ -97,8 +97,8 @@ function validateAll(formName) {
 
 			// 根据 prop 属性值从 rules 中提取对应的验证规则数组，然后根据数组中的验证规则逐条对需要验证的元素进行验证
 			obj_Rules[prop].forEach((rule) => {
-				const validate = new Validate(propControl, rule, prop, formName);
-				validate.validate();
+				const validator = new Validator(propControl, rule, prop, formName);
+				validator.validate();
 			});
 		});
 
@@ -123,8 +123,8 @@ function validateProp(formName, propVal) {
 
 		// 根据 prop 属性值从 rules 中提取对应的验证规则数组，然后根据数组中的验证规则逐条对需要验证的元素进行验证
 		obj_Rules[propVal].forEach((rule) => {
-			const validate = new Validate(propControl, rule, propVal, formName);
-			validate.validate();
+			const validator = new Validator(propControl, rule, propVal, formName);
+			validator.validate();
 		});
 		setTimeout(() => {
 			const tipElem = propElem.querySelector('.valid-tip');
@@ -141,27 +141,37 @@ function validateProp(formName, propVal) {
  * @param {String} prop 验证的 prop
  * @param {String} formName 表单 name 属性
  */
-function Validate(tragetDom, rule, prop, formName) {
+function Validator(tragetDom, rule, prop, formName) {
 	this.tragetDom = tragetDom;
 	this.rule = rule;
 	this.prop = prop;
 	this.formElem = document.querySelector(`form[name=${formName}]`);
+	this.value = tragetDom.value; // 获取当前验证元素的 value
 }
 
-Validate.prototype = {
-	constructor: Validate,
+Validator.prototype = {
+	constructor: Validator,
 
 	/**
 	 * 表单验证
 	 */
 	validate: function () {
+		let arr_key = Object.keys(this.rule); // 获取 rule 对象中的全部 key
+		console.log(this.value);
+		// 判断是否存在 transform 属性
+		// transform 属性用于转化验证前的 value，所以应最先处理
+		if (arr_key.includes('transform')) {
+			this.value = this.rule.transform(this.value);
+		}
+
 		// 提取 rule 对象中的全部属性逐一遍历
-		Object.keys(this.rule).forEach((key) => {
+		arr_key.forEach((key) => {
 			// 借助 switch 语句对不同的 key 进行不同的处理
 			switch (key.trim()) {
 				case 'message':
 				case 'trigger':
-					// message、trigger 不需要进行处理，直接忽略
+				case 'transform':
+					// message、trigger 不需要进行处理，transform 已经处理过，直接忽略
 					break;
 				case 'validator':
 					this.customValidate();
@@ -192,7 +202,7 @@ Validate.prototype = {
 	 * @param {String|Function|HTML String} msg 提示语
 	 * @param {*} ruleName 当前验证规则名
 	 */
-	dealWithTip: function (value, ret, msg, ruleName) {
+	dealWithTip: function (ret, msg, ruleName) {
 		if (!ret) {
 			// 验证失败
 			let message = msg;
@@ -200,7 +210,7 @@ Validate.prototype = {
 			// 判断 msg 是否是 function, 如果是，则 提示文本为 function 的返回值
 			// msg 接收一个参数，即用户输入值
 			if (typeof msg == 'function') {
-				message = msg(value);
+				message = msg(this.value);
 			}
 			this.addTipLabel(message, ruleName);
 			console.warn(`${this.prop}：${msg}`);
@@ -301,10 +311,9 @@ Validate.prototype = {
 	 * 用户可以通过给回调函数传递 new Error() 参数来表示验证错误
 	 */
 	customValidate: function () {
-		let val = this.tragetDom.value.trim();
 		let isTrue = false;
 		let msg = '';
-		this.rule.validator(this.rule, val, (error) => {
+		this.rule.validator(this.rule, this.value, (error) => {
 			// 判断 error 是否存在，存在则表示验证出错
 			if (error != undefined) {
 				isTrue = false;
@@ -319,46 +328,40 @@ Validate.prototype = {
 				return false;
 			}
 
-			this.dealWithTip(val, isTrue, msg, 'custom-validate');
+			this.dealWithTip(isTrue, msg, 'custom-validate');
 		});
 	},
 
 	// 必填
 	required: function () {
-		let val = this.tragetDom.value.trim();
-
 		// 验证是否已存在提示语
 		let ret = this.hasValidTip('required');
 		if (!ret) {
 			return false;
 		}
 
-		this.dealWithTip(val, val != '', this.rule.message, 'required');
+		this.dealWithTip(this.value != '', this.rule.message, 'required');
 	},
 
 	// 最小值
 	min: function () {
-		let val = this.tragetDom.value;
-
 		// 验证是否已存在提示语
 		let ret = this.hasValidTip('min');
 		if (!ret) {
 			return false;
 		}
 		console.log(typeof this.rule.message);
-		this.dealWithTip(val, val >= this.rule.min, this.rule.message, 'min');
+		this.dealWithTip(this.value >= this.rule.min, this.rule.message, 'min');
 	},
 
 	// 最大值
 	max: function () {
-		let val = this.tragetDom.value;
-
 		// 验证是否已存在提示语
 		let ret = this.hasValidTip('max');
 		if (!ret) {
 			return false;
 		}
 
-		this.dealWithTip(val, val <= this.rule.max, this.rule.message, 'max');
+		this.dealWithTip(this.value <= this.rule.max, this.rule.message, 'max');
 	}
 };
