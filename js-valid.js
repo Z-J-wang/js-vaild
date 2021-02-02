@@ -288,9 +288,31 @@ Validate.prototype = {
 		return ret;
 	},
 
+	/**
+	 * 自定义验证规则
+	 * 用户可以通过给回调函数传递 new Error() 参数来表示验证错误
+	 */
 	customValidate: function () {
 		let val = this.tragetDom.value.trim();
-		console.log(this.rule);
+		let isTrue = false;
+		let msg = '';
+		this.rule.validator(this.rule, val, (error) => {
+			// 判断 error 是否存在，存在则表示验证出错
+			if (error != undefined) {
+				isTrue = false;
+				msg = error.message;
+			} else {
+				isTrue = true;
+			}
+
+			// 验证是否已存在提示语
+			let ret = this.hasValidTip('custom-validate');
+			if (!ret) {
+				return false;
+			}
+
+			this.dealWithTip(isTrue, msg, 'custom-validate');
+		});
 	},
 
 	// 必填

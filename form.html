@@ -8,27 +8,53 @@
 	<body>
 		<form name="ruleName">
 			<div prop="username">
-        <div class="asdasdasd tip-anchor"></div>
+				<div class="asdasdasd tip-anchor"></div>
 				<label for="">用户名：</label>
 				<input type="text" />
-      </div>
-      <div prop="pass">
+			</div>
+			<div prop="pass">
 				<label for="">密码：</label>
 				<input type="text" />
 			</div>
+			<button type="button" onclick="valid('ruleName')">表单验证</button>
 		</form>
 		<script>
 			window.onload = function () {
+				let validatePass = (rule, value, callback) => {
+					if (value === '') {
+						callback(new Error('请输入密码'));
+					} else {
+						callback();
+					}
+				};
 				const formELem = document.querySelector('form');
 				let rules = {
 					username: [
-						{ required: true, message: '用户名不能为空', trigger: ['blur', 'change'] },
+						{
+							required: true,
+							message: '用户名不能为空',
+							trigger: ['blur', 'change']
+						},
 						{ min: 10, message: '最小值为10', trigger: ['blur', 'change'] }
+					],
+					pass: [
+						{
+							validator: validatePass,
+							message: '自定义验证',
+							trigger: ['blur', 'change']
+						}
 					]
 				};
-        formELem.rules = rules;
+				formELem.rules = rules;
 			};
 		</script>
 		<script src="/js-valid.js"></script>
+		<script>
+			function valid(formName) {
+				validateProp(formName, 'username').then((valid) => {
+					console.log(valid);
+				});
+			}
+		</script>
 	</body>
 </html>
