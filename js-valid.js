@@ -55,10 +55,10 @@ function initValid() {
 
 /**
  * 向指定元素一次性绑定多个监听器
- * @param {DOM} tragetDom  目标元素
- * @param {String} prop 表单验证的prop
- * @param {string|array} events 事件监听器
- * @param {*} callback 回调函数
+ * @param {DOM} tragetDom  必填：目标元素
+ * @param {String} prop 必填：表单验证的prop
+ * @param {string|array} events 必填：事件监听器
+ * @param {*} callback 必填：回调函数
  */
 function addMoreEvents(tragetDom, prop, events, callback) {
 	let triggers = '';
@@ -82,9 +82,14 @@ function addMoreEvents(tragetDom, prop, events, callback) {
 
 /**
  * 根据表单的 name 属性值，对表单进行全部字段验证
- * @param {String} formName form 的 name 属性值
+ * @param {String} formName 必填：form 的 name 属性值
  */
 function validateAll(formName) {
+	if (!formName) {
+		console.error('参数 formName 不能为空');
+		return false;
+	}
+
 	return new Promise((resolve, reject) => {
 		const formElem = document.querySelector(`form[name=${formName}]`); // 获取要进行验证的表单
 		const arr_propsElem = formElem.querySelectorAll(`*[prop]`); // 获取当前表单中全部的 prop 元素
@@ -111,10 +116,18 @@ function validateAll(formName) {
 
 /**
  * 验证具体的表单字段
- * @param {String} formName form 的 name 属性值
- * @param {String} propVal prop 的属性值
+ * @param {String} formName 必填：form 的 name 属性值
+ * @param {String} propVal 必填：prop 的属性值
  */
 function validateProp(formName, propVal) {
+	if (!formName) {
+		console.error('参数 formName 不能为空');
+		return false;
+	}
+	if (!propVal) {
+		console.error('参数 propVal 不能为空');
+		return false;
+	}
 	return new Promise((resolve, reject) => {
 		const formElem = document.querySelector(`form[name=${formName}]`); // 获取要进行验证的表单
 		const obj_Rules = formElem.rules; // 获取当前 form 的 rules
@@ -135,9 +148,13 @@ function validateProp(formName, propVal) {
 
 /**
  * 表单整体重置
- * @param {String} formName 表单名
+ * @param {String} formName 必填：表单名
  */
 function resetForm(formName) {
+	if (!formName) {
+		console.error('参数 formName 不能为空');
+		return false;
+	}
 	// 获取表单中的 prop 元素
 	let arr_propElems = document.querySelectorAll(
 		`form[name=${formName}] *[prop]`
@@ -153,10 +170,18 @@ function resetForm(formName) {
 
 /**
  * 重置指定表单的指定 prop
- * @param {String} formName 表单名
- * @param {String} propName prop 名
+ * @param {String} formName 必填：表单名
+ * @param {String} propName 必填：prop 名
  */
 function resetProp(formName, propName) {
+	if (!formName) {
+		console.error('参数 formName 不能为空');
+		return false;
+	}
+	if (!propName) {
+		console.error('参数 propName 不能为空');
+		return false;
+	}
 	// 获取表单中的 prop 元素
 	let propElem = document.querySelector(
 		`form[name=${formName}] *[prop=${propName}]`
