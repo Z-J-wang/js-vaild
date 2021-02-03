@@ -261,7 +261,6 @@ Validator.prototype = {
 	 */
 	validate: function () {
 		let arr_key = Object.keys(this.rule); // 获取 rule 对象中的全部 key
-		console.log(this.value);
 		// 判断是否存在 transform 属性
 		// transform 属性用于转化验证前的 value，所以应最先处理
 		if (arr_key.includes('transform')) {
