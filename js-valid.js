@@ -138,21 +138,78 @@ function validateProp(formName, propVal) {
  * @param {String} formName 表单名
  */
 function resetForm(formName) {
-
-  // 获取表单中的 prop 元素
+	// 获取表单中的 prop 元素
 	let arr_propElems = document.querySelectorAll(
 		`form[name=${formName}] *[prop]`
-  );
-  
-  // 遍历 prop 元素，逐一进行重置操作
+	);
+
+	// 遍历 prop 元素，逐一进行重置操作
 	arr_propElems.forEach(function (propElem) {
 		let propControl = propElem.querySelector('input, select, areatext');
-    let tipElem = propElem.querySelector('.valid-tip');
-    if(tipElem){
-      tipElem.remove(); // 删除提示语元素
-    }
-    propControl.value = ''; // 重置 value
+		propControl.value = ''; // 重置 value
+		forceRemoveTip(propElem);
 	});
+}
+
+/**
+ * 重置指定表单的指定 prop
+ * @param {String} formName 表单名
+ * @param {String} propName prop 名
+ */
+function resetProp(formName, propName) {
+	// 获取表单中的 prop 元素
+	let propElem = document.querySelector(
+		`form[name=${formName}] *[prop=${propName}]`
+	);
+	if (propElem) {
+		let propControl = propElem.querySelector('input, select, areatext');
+		propControl.value = ''; // 重置 value
+		forceRemoveTip(propElem);
+	}
+}
+
+/**
+ * 根据 formName 移除表单项的校验结果。
+ * @param {String} formName 必填参数：表单名
+ * @param {Array} arr_propNames 可选参数：propName 数组
+ */
+function clearValidate(formName, arr_propNames) {
+	if (!formName) {
+		console.error('缺少参数第一个参数 formName');
+	}
+
+	if (!arr_propNames) {
+		// 获取表单中的 prop 元素
+		let arr_propElems = document.querySelectorAll(
+			`form[name=${formName}] *[prop]`
+		);
+		arr_propElems.forEach((propElem) => {
+			forceRemoveTip(propElem);
+		});
+	} else if (arr_propNames && arr_propNames.length > 0) {
+		arr_propNames.forEach((propName) => {
+			// 获取表单中的 prop 元素
+			let propElem = document.querySelector(
+				`form[name=${formName}] *[prop=${propName}]`
+			);
+			if (propElem) {
+				forceRemoveTip(propElem);
+			}
+		});
+	} else if (arr_propNames && !(arr_propNames instanceof Array)) {
+		console.error('参数 arr_propName 类型应为 Array');
+	}
+}
+
+/**
+ * 强制删除 prop 的提示语
+ * @param {Dom} propElem prop 元素
+ */
+function forceRemoveTip(propElem) {
+	let tipElem = propElem.querySelector('.valid-tip');
+	if (tipElem) {
+		tipElem.remove(); // 删除提示语元素
+	}
 }
 
 /**
