@@ -315,25 +315,97 @@ JS-Valid 自定义验证规则的用法跟  [async-validator](https://github.com
 
 ### JS-Valid 的方法
 
-##### validateAll 表单验证
+##### 表单验证：`validateAll (formName)`
 
++ 参数：
 
+  + `formName`  （必填）要验证表单的 `name` 属性值
 
-##### validateProp 单一控件验证
++ 返回值：`Promise` 对象
 
++ 说明：根据表单的 name 属性值，对表单进行全部字段验证。返回一个 `Promise` 对象。
 
+  ```js
+  // 验证 <form name="ruleName">
+  validateAll ('ruleName').then((valid) => {
+    console.log(valid);	// true/false
+  });
+  ```
 
-##### resetForm 表单重置
+  
 
+##### 单一控件验证：`validateProp (formName, propVal)`
 
++ 参数：
 
-##### resetProp 单一控件重置
+  + `formName`  （必填）要验证表单的 `name` 属性值
+  + `propVal` （必填）`prop` 的属性值
 
++ 返回值：`Promise` 对象
 
++ 说明：验证具体的表单字段。返回一个 `Promise` 对象。
 
-##### clearValidate 表单验证状态重置
+  ```js
+  // 验证 <form name="ruleName"> 的 username 字段
+  validateProp('ruleName', 'username').then((valid) => {
+    console.log(valid);	// true/false
+  });
+  ```
 
+  
 
+##### 表单重置：`resetForm (formName)`
+
++ 参数：
+
+  + `formName`  （必填）要验证表单的 `name` 属性值
+
++ 返回值：无
+
++ 说明：根据表单的 name 属性值，对表单进行全部字段进行重置。用户输入的`value` 一并清空。
+
+  ```js
+  // 重置 <form name="ruleName">
+  resetForm('ruleName');
+  ```
+
+  
+
+##### 单一控件重置 `resetProp(formName, propVal)`
+
++ 参数：
+
+  + `formName`  （必填）要验证表单的 `name` 属性值
+  + `propVal` （必填）`prop` 的属性值
+
++ 返回值：无
+
++ 说明：具体的表单字段进行重置。用户输入的`value` 一并清空。
+
+  ```js
+  // 重置 <form name="ruleName"> 的 username 字段
+  resetProp('ruleName', 'username');
+  ```
+
+  
+
+##### 表单验证状态重置 `clearValidate(formName, arr_propVals)`
+
++ 参数：
+
+  + `formName`  （必填）要验证表单的 `name` 属性值
+  + `arr_propVals` （可选）`prop` 的属性值组成的数组
+
++ 返回值：无
+
++ 说明：根据表单 `name` 属性和 `prop` 数组进行表单验证状态重置。该操作不会清空用户输入的`value`。`arr_propVals` 为可选项，当用户不传递该参数时，默认重置整个表单的验证状态。
+
+  ```js
+  // 重置 <form name="ruleName"> 的 username 和 password 的验证状态
+  clearValidate('ruleName', ['username', 'password']);
+  ```
+
+  
 
 
 
