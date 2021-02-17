@@ -299,14 +299,26 @@ Validator.prototype = {
 					this.minLength();
 					break;
 				}
+				case 'pattern': {
+					this.pattern();
+					break;
+				}
+				case 'type': {
+					this.type();
+					break;
+				}
+				case 'decimal': {
+					this.decimal();
+					break;
+				}
 				default:
 					//  既不是默认的表单验证关键字，又不是message、trigger，则直接抛错 "未定义"
 					console.error(`${this.prop} rule 的 ${key} 未定义`);
 					break;
 			}
 		});
-  },
-  
+	},
+
 	/**
 	 * 提示语处理
 	 * @param {*} value 用户输入值
@@ -457,23 +469,64 @@ Validator.prototype = {
 	// 最大值
 	max: function () {
 		this.dealWithTip(this.value <= this.rule.max, this.rule.message, 'max');
-  },
-  
-  // 最大长度
-  maxLength: function () {
+	},
+
+	// 最大长度
+	maxLength: function () {
 		this.dealWithTip(
 			this.value.length <= this.rule.maxLength,
 			this.rule.message,
 			'maxLength'
 		);
-  },
+	},
 
-  // 最小长度
-  minLength: function () {
-    this.dealWithTip(
+	// 最小长度
+	minLength: function () {
+		this.dealWithTip(
 			this.value.length >= this.rule.minLength,
 			this.rule.message,
 			'minLength'
 		);
-  }
+	},
+
+	type: function () {
+		let type = this.rule.type;
+		let isTrue = false;
+		switch (type) {
+			case 'string': {
+				isTrue = typeof this.value == 'string';
+				break;
+			}
+			case 'number': {
+				let reg = /^[0-9]+.?[0-9]*/;
+				isTrue = reg.test(this.value);
+				break;
+			}
+			case 'boolean': {
+				isTrue = typeof this.value == 'boolean';
+				break;
+			}
+			case 'array': {
+				isTrue = this.value instanceof Array;
+				break;
+      }
+      case 'mail':{
+        let reg = /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})*$/;
+        isTrue = reg.test(this.value);
+      }
+    }
+		this.dealWithTip(isTrue, this.rule.message, 'type');
+  },
+  
+  // 自定义小数点后最大位数
+	decimal: function () {
+		let reg = new RegExp(`^\\d+(.?\\d{1,${this.rule.decimal}})?$`);
+		this.dealWithTip(reg.test(this.value), this.rule.message, 'pattern');
+	},
+
+	// 自定义正则表达
+	pattern: function () {
+		let reg = new RegExp(this.rule.pattern);
+		this.dealWithTip(reg.test(this.value), this.rule.message, 'pattern');
+	}
 };
