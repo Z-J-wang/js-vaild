@@ -291,6 +291,14 @@ Validator.prototype = {
 					this.max();
 					break;
 				}
+				case 'maxLength': {
+					this.maxLength();
+					break;
+				}
+				case 'minLength': {
+					this.minLength();
+					break;
+				}
 				default:
 					//  既不是默认的表单验证关键字，又不是message、trigger，则直接抛错 "未定义"
 					console.error(`${this.prop} rule 的 ${key} 未定义`);
@@ -308,8 +316,8 @@ Validator.prototype = {
 	 */
 	dealWithTip: function (ret, msg, ruleName) {
 		// 验证是否已存在提示语
-		let ret = this.hasValidTip(ruleName);
-		if (!ret) {
+		let validTip = this.hasValidTip(ruleName);
+		if (!validTip) {
 			return false;
 		}
 
@@ -449,5 +457,23 @@ Validator.prototype = {
 	// 最大值
 	max: function () {
 		this.dealWithTip(this.value <= this.rule.max, this.rule.message, 'max');
-	}
+  },
+  
+  // 最大长度
+  maxLength: function () {
+		this.dealWithTip(
+			this.value.length <= this.rule.maxLength,
+			this.rule.message,
+			'maxLength'
+		);
+  },
+
+  // 最小长度
+  minLength: function () {
+    this.dealWithTip(
+			this.value.length >= this.rule.minLength,
+			this.rule.message,
+			'minLength'
+		);
+  }
 };
