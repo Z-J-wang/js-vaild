@@ -297,7 +297,8 @@ Validator.prototype = {
 					break;
 			}
 		});
-	},
+  },
+  
 	/**
 	 * 提示语处理
 	 * @param {*} value 用户输入值
@@ -306,6 +307,12 @@ Validator.prototype = {
 	 * @param {*} ruleName 当前验证规则名
 	 */
 	dealWithTip: function (ret, msg, ruleName) {
+		// 验证是否已存在提示语
+		let ret = this.hasValidTip(ruleName);
+		if (!ret) {
+			return false;
+		}
+
 		if (!ret) {
 			// 验证失败
 			let message = msg;
@@ -425,46 +432,22 @@ Validator.prototype = {
 				isTrue = true;
 			}
 
-			// 验证是否已存在提示语
-			let ret = this.hasValidTip('custom-validate');
-			if (!ret) {
-				return false;
-			}
-
 			this.dealWithTip(isTrue, msg, 'custom-validate');
 		});
 	},
 
 	// 必填
 	required: function () {
-		// 验证是否已存在提示语
-		let ret = this.hasValidTip('required');
-		if (!ret) {
-			return false;
-		}
-
 		this.dealWithTip(this.value != '', this.rule.message, 'required');
 	},
 
 	// 最小值
 	min: function () {
-		// 验证是否已存在提示语
-		let ret = this.hasValidTip('min');
-		if (!ret) {
-			return false;
-		}
-		console.log(typeof this.rule.message);
 		this.dealWithTip(this.value >= this.rule.min, this.rule.message, 'min');
 	},
 
 	// 最大值
 	max: function () {
-		// 验证是否已存在提示语
-		let ret = this.hasValidTip('max');
-		if (!ret) {
-			return false;
-		}
-
 		this.dealWithTip(this.value <= this.rule.max, this.rule.message, 'max');
 	}
 };
