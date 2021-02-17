@@ -494,37 +494,59 @@ Validator.prototype = {
 		let isTrue = false;
 		switch (type) {
 			case 'string': {
+				// 字符串
 				isTrue = typeof this.value == 'string';
 				break;
 			}
 			case 'number': {
+				// 数字
 				let reg = /^[0-9]+.?[0-9]*/;
 				isTrue = reg.test(this.value);
 				break;
 			}
 			case 'boolean': {
+				// 布尔值
 				isTrue = typeof this.value == 'boolean';
 				break;
 			}
 			case 'array': {
+				// 数组
 				isTrue = this.value instanceof Array;
 				break;
-      }
-      case 'mail':{
-        let reg = /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})*$/;
-        isTrue = reg.test(this.value);
-      }
-    }
+			}
+			case 'mail': {
+				//邮箱
+				let reg = /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})*$/;
+				isTrue = reg.test(this.value);
+				break;
+			}
+			case 'integer': {
+				// 整数
+				let reg = /^-?\d+$/;
+				isTrue = reg.test(this.value);
+				break;
+			}
+			case 'date': {
+				/**
+				 * 日期，允许的日期格式为
+				 * yyyy/mm/dd yyyy/mm/ddThh:mm
+				 * yyyy-mm-dd yyyy-mm-ddThh:mm
+				 */
+				let reg = /^[0-9]{4}[-|/][0-9]{2}[-|/][0-9]{2}(T[0-9]{2}:[0-9]{2})?$/;
+				isTrue = reg.test(this.value);
+				break;
+			}
+		}
 		this.dealWithTip(isTrue, this.rule.message, 'type');
-  },
-  
-  // 自定义小数点后最大位数
+	},
+
+	// 自定义小数点后最大位数
 	decimal: function () {
 		let reg = new RegExp(`^\\d+(.?\\d{1,${this.rule.decimal}})?$`);
 		this.dealWithTip(reg.test(this.value), this.rule.message, 'pattern');
 	},
 
-	// 自定义正则表达
+	// 自定义正则表达式
 	pattern: function () {
 		let reg = new RegExp(this.rule.pattern);
 		this.dealWithTip(reg.test(this.value), this.rule.message, 'pattern');
