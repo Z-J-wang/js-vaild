@@ -489,6 +489,7 @@ Validator.prototype = {
 		);
 	},
 
+  // 数值类型验证
 	type: function () {
 		let type = this.rule.type;
 		let isTrue = false;
@@ -514,7 +515,7 @@ Validator.prototype = {
 				isTrue = this.value instanceof Array;
 				break;
 			}
-			case 'mail': {
+			case 'email': {
 				//邮箱
 				let reg = /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})*$/;
 				isTrue = reg.test(this.value);
@@ -536,6 +537,27 @@ Validator.prototype = {
 				isTrue = reg.test(this.value);
 				break;
 			}
+      case 'url':{
+				// url
+				let reg = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?/;
+				isTrue = reg.test(this.value);
+				break;
+			}
+      case 'float':{
+				// 浮点数
+				let reg = /^[0-9]+.[0-9]+$/;
+				isTrue = reg.test(this.value);
+        break;
+			}
+      case 'regexp':{
+				// 正则对象
+				isTrue = this.value instanceof RegExp;
+				break;
+			}
+      case 'method':{
+				isTrue = typeof this.value == 'function';
+        break;
+      }
 		}
 		this.dealWithTip(isTrue, this.rule.message, 'type');
 	},
