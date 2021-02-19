@@ -204,7 +204,7 @@ let rules = {
 
   + 用法：
 
-    `trigger` 类型可以说字符串和数组。当其值只有一个时，字符串或者数组都可以；当其值为多个时，需为数组。
+    `trigger` 类型可以是字符串和数组。当其值只有一个时，字符串或者数组都可以；当其值为多个时，需为数组。
 
     ```js
     username: [
@@ -246,7 +246,34 @@ let rules = {
     ],
     ```
 
-  
++ type
+
+  + 类型：`string`
+
+  + 是否必填：否
+
+  + default：`string`
+
+  + 用法：`type` 用于指定`value`的数据类型。没有明确指出是默认数据类型为`string`。
+
+    ​	`type` 可选择有：
+
+    ​	
+
+    | 类型      | 说明                                                         |
+    | --------- | ------------------------------------------------------------ |
+    | `string`  | 字符串类型                                                   |
+    | `number`  | 数值类型                                                     |
+    | `boolean` | 布尔值类型（注意区分字符串`'true'/'false'`和布尔值`true/false`） |
+    | `array`   | 数组类型                                                     |
+    | `email`   | 邮箱格式                                                     |
+    | `integer` | 正负整数                                                     |
+    | `date`    | 日期格式：允许的日期格式为`yyyy/mm/dd` 、`yyyy/mm/ddThh:mm`、`yyyy-mm-dd` 、`yyyy-mm-ddThh:mm` |
+    | `url`     | 网址类型：允许个协议有`http`、`https`、`ftp`                 |
+    | `float`   | 浮点数类型                                                   |
+    | `method`  | `function` 类型                                              |
+
+    
 
 + 内置规则
 
@@ -265,12 +292,18 @@ let rules = {
 
   内置验证规则列表：
 
-  | 规则       | 默认值  | 类型      | 描述   | 举例             |
-  | ---------- | ------- | --------- | ------ | ---------------- |
-  | `required` | `false` | `Boolean` | 必填   | `required: true` |
-  | `min`      |         | `Number`  | 最小值 | `min:5`          |
-  | `max`      |         | `Number`  | 最大值 | `max:16`         |
-
+  | 规则        | 默认值  | 类型      | 描述                         | 举例                       |
+  | ----------- | ------- | --------- | ---------------------------- | -------------------------- |
+  | `required`  | `false` | `Boolean` | 必填                         | `required: true`           |
+  | `min`       |         | `Number`  | 最小值                       | `min:5`                    |
+  | `max`       |         | `Number`  | 最大值                       | `max:16`                   |
+| `maxLength` |         | `Number`  | 字符串最大长度               | `maxLength:18`             |
+  | `minLength` |         | `Number`  | 字符串最小长度               | `minLength:8`              |
+  | `decimal`   |         | `Number`  | 自定义浮点数小数位长度       | `decimal:2`                |
+  | `pattern`   |         | `RegExp`  | 正则表达式（不需要携带`//`） | `pattern:'^[0-9]+.[0-9]+'` |
+  
+  
+  
   
 
 

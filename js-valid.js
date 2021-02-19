@@ -549,15 +549,15 @@ Validator.prototype = {
 				isTrue = reg.test(this.value);
         break;
 			}
-      case 'regexp':{
-				// 正则对象
-				isTrue = this.value instanceof RegExp;
-				break;
-			}
       case 'method':{
 				isTrue = typeof this.value == 'function';
         break;
       }
+      default:{
+				// 字符串
+				isTrue = typeof this.value == 'string';
+				break;
+			}
 		}
 		this.dealWithTip(isTrue, this.rule.message, 'type');
 	},
